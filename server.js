@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 app.use(bodyParser.json());
-app.listen(3000, () => {
+app.listen(process.env.PORTC || 3000, () => {
   console.log("hello from the new web server");
 });
 
@@ -27,6 +27,33 @@ app.post("/albums", (req, res) => {
   albumsData.push(req.body);
   console.log(req.body);
   res.send("this is the post endpoint");
+});
+app.get("/albums/:genre", (req, res) => {
+  console.log(req.query);
+  if (req.query === undefined) {
+    res.send(albumsData);
+  } else {
+    let filteredLIst = albumsData.filter(
+      album => album.primaryGenreName === req.query.genre
+    );
+    res.send(filteredLIst);
+  }
+});
+app.delete("/albums/:albumId", function(req, res) {
+  console.log(req.params.albumId);
+  var albumId = req.params.albumId;
+  var album = albumsData.find(album => album.albumId === albumId);
+  albumsData.splice(albumsData.indexOf(album), 1);
+  res.send(album);
+});
+
+app.put("/albums/:albumId", function(req, res) {
+  console.log(req.params.albumId);
+  console.log(req.body);
+  var albumId = req.params.albumId;
+  var albumIndex = albumsData.findIndex(album => album.albumId === albumId);
+  albumsData[albumIndex] = { ...albumsData[albumIndex], ...req.body };
+  res.send("test");
 });
 
 const albumsData = [
